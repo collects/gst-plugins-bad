@@ -56,9 +56,7 @@ GST_START_TEST (test_properties)
       "location", &res_location,
       "file-name", &res_file_name,
       "ftp-port", &res_ftp_port,
-      "epsv-mode", &res_epsv_mode,
-      "create-dirs", &res_create_dirs,
-      NULL);
+      "epsv-mode", &res_epsv_mode, "create-dirs", &res_create_dirs, NULL);
 
   fail_unless (strncmp (res_location, "mylocation", strlen ("mylocation"))
       == 0);
@@ -83,9 +81,7 @@ GST_START_TEST (test_properties)
       "location", &res_location,
       "file-name", &res_file_name,
       "ftp-port", &res_ftp_port,
-      "epsv-mode", &res_epsv_mode,
-      "create-dirs", &res_create_dirs,
-      NULL);
+      "epsv-mode", &res_epsv_mode, "create-dirs", &res_create_dirs, NULL);
 
   fail_unless (strncmp (res_location, "newlocation", strlen ("newlocation"))
       == 0);
@@ -101,6 +97,7 @@ GST_START_TEST (test_properties)
 
   cleanup_curlftpsink (sink);
 }
+
 GST_END_TEST;
 
 static Suite *

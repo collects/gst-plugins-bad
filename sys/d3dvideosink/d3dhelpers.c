@@ -581,8 +581,8 @@ gst_d3dsurface_buffer_pool_alloc_buffer (GstBufferPool * bpool,
 
   d3dformat =
       gst_video_format_to_d3d_format (GST_VIDEO_INFO_FORMAT (&pool->info));
-  hr = IDirect3DDevice9_CreateOffscreenPlainSurface (klass->d3d.
-      device.d3d_device, GST_VIDEO_INFO_WIDTH (&pool->info),
+  hr = IDirect3DDevice9_CreateOffscreenPlainSurface (klass->d3d.device.
+      d3d_device, GST_VIDEO_INFO_WIDTH (&pool->info),
       GST_VIDEO_INFO_HEIGHT (&pool->info), d3dformat, D3DPOOL_DEFAULT, &surface,
       NULL);
   if (hr != D3D_OK) {
@@ -684,7 +684,8 @@ fallback:
 }
 
 static void
-gst_d3dsurface_buffer_pool_release_buffer (GstBufferPool * bpool, GstBuffer * buffer)
+gst_d3dsurface_buffer_pool_release_buffer (GstBufferPool * bpool,
+    GstBuffer * buffer)
 {
   GstMemory *mem = NULL;
 
@@ -1866,9 +1867,13 @@ d3d_render_buffer (GstD3DVideoSink * sink, GstBuffer * buf)
 
     surface = ((GstD3DSurfaceMemory *) mem)->surface;
 
+#ifndef DISABLE_BUFFER_POOL
     /* Need to keep an additional ref until the next buffer
      * to make sure it isn't reused until then */
     sink->fallback_buffer = buf;
+#else
+    sink->fallback_buffer = NULL;
+#endif
   } else {
     mem = gst_buffer_peek_memory (buf, 0);
     surface = ((GstD3DSurfaceMemory *) mem)->surface;
@@ -1881,7 +1886,9 @@ d3d_render_buffer (GstD3DVideoSink * sink, GstBuffer * buf)
 
   if (sink->d3d.surface)
     IDirect3DSurface9_Release (sink->d3d.surface);
+#ifndef DISABLE_BUFFER_POOL
   IDirect3DSurface9_AddRef (surface);
+#endif
   sink->d3d.surface = surface;
 
   if (!d3d_present_swap_chain (sink)) {
